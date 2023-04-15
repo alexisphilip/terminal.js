@@ -14,18 +14,39 @@ class Terminal {
 
     constructor(container) {
         this.container = container;
-        this.container.querySelector(".terminal-input-prefix").innerHTML = this.prefix;
+        this.container.querySelector(".terminal-prefix").innerHTML = this.prefix;
         this.inputEl = this.container.querySelector(".terminal-input");
         this.container.addEventListener("click", (e) => {
             this.inputEl.focus();
         });
 
+        let commands = [],
+            commandPosition = -1;
+
         this.inputEl.addEventListener("keydown", (e) => {
             if (e.key === "Enter") {
-                const command = e.currentTarget.value;
+                const command = e.currentTarget.value.trim();
                 e.currentTarget.value = "";
-                this.write(this.prefix + " " + command);
+                if (command !== "") {
+                    commands.unshift(command);
+                }
+                commandPosition = -1;
+                this.write(command, true);
                 this.#bashParse(command);
+            } else if (e.key === "ArrowUp") {
+                if (commands[commandPosition + 1]) {
+                    commandPosition++;
+                    e.currentTarget.value = ""; // Allows the cursor to be set at the end of the input' value.
+                    e.currentTarget.value = commands[commandPosition];
+                }
+            } else if (e.key === "ArrowDown") {
+                if (commands[commandPosition - 1]) {
+                    commandPosition--;
+                    e.currentTarget.value = ""; // Allows the cursor to be set at the end of the input' value.
+                    e.currentTarget.value = commands[commandPosition];
+                } else {
+                    e.currentTarget.value = "";
+                }
             }
         });
 
@@ -99,8 +120,8 @@ class Terminal {
             }
         }
 
-        console.log(args);
-        console.log(argsObject);
+        // console.log(args);
+        // console.log(argsObject);
 
         this.#bashLookupAndExec(program, args);
     }
@@ -122,10 +143,23 @@ class Terminal {
         this.programs[programName] = programFunction;
     }
 
-    write(string) {
+    write(string, appendPrefix = false) {
+        
         const bashEntryEl = document.createElement("div");
         bashEntryEl.classList.add("terminal-entry");
-        bashEntryEl.innerHTML = string;
+        
+        if (appendPrefix) {
+            const prefixEl = document.createElement("span");
+            prefixEl.classList.add("terminal-prefix");
+            prefixEl.innerText = this.prefix + " ";
+            bashEntryEl.appendChild(prefixEl);
+        }
+        
+        const commandEl = document.createElement("span");
+        commandEl.classList.add("terminal-command");
+        commandEl.innerText = string;
+        bashEntryEl.appendChild(commandEl);
+
         this.container.querySelector(".terminal-entries").appendChild(bashEntryEl)
     }
 }

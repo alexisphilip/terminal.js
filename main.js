@@ -2,6 +2,13 @@
  * Terminal.js example.
  */
 
+// TODO: Terminal.clear()
+// TODO: default clear method
+// TODO: refactor code (make it more clear, ordered, less repetitive)
+// TODO: when parsing "words string", remove single & double quotes
+// TODO: change objects passed to functions
+// TODO: docs: overwrite default programs, write(), clear(), command()...
+
 const container = document.querySelector("#myTerminal");
 
 const myTerminal = new Terminal(container);
