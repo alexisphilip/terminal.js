@@ -2,21 +2,42 @@
  * Terminal.js example.
  */
 
-// TODO: Terminal.clear()
-// TODO: default clear method
+// TODO: set clear method to default?
 // TODO: refactor code (make it more clear, ordered, less repetitive)
 // TODO: when parsing "words string", remove single & double quotes
 // TODO: change objects passed to functions
-// TODO: docs: overwrite default programs, write(), clear(), command()...
+// TODO: docs: overwrite default programs
+
+/**
+ * Clear program.
+ */
+Terminal.addFunction("clear", (terminal, args) => {
+    terminal.clear();
+});
 
 const container = document.querySelector("#myTerminal");
 
 const myTerminal = new Terminal(container);
 
+/**
+ * Writes in the terminal.
+ */
 myTerminal.addFunction("ping", (terminal, args) => {
     terminal.write("pong");
 });
 
+/**
+ * Executes commands in the terminal, without echoing the commands.
+ */
+myTerminal.addFunction("test", (terminal, args) => {
+    terminal.echo = false;
+    terminal.exec("ping");
+    terminal.write("Done!");
+});
+
+/**
+ * Arguments management.
+ */
 myTerminal.addFunction("copy", (terminal, args) => {
     console.log(args);
     if (args[1] == "-f" && !!args[2] && args[3] == "-m" && !!args[4]) {

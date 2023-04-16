@@ -11,6 +11,7 @@ class Terminal {
     container;
 
     prefix = "user@host:~#";
+    echo = true;
 
     constructor(container) {
         this.container = container;
@@ -31,8 +32,8 @@ class Terminal {
                     commands.unshift(command);
                 }
                 commandPosition = -1;
-                this.write(command, true);
-                this.#bashParse(command);
+                // Executes the command.
+                this.#bashParse(command, "input");
             } else if (e.key === "ArrowUp") {
                 if (commands[commandPosition + 1]) {
                     commandPosition++;
@@ -60,7 +61,91 @@ class Terminal {
         // }
     }
 
-    #bashParse(command) {
+    static setTemplate() {
+        
+    }
+
+    /**
+     * Registers a program (JS function) globally (for all terminal's instances).
+     * @param {string} programName The program's name.
+     * @param {function} programFunction The program's JS function to execute when requested.
+     */
+    static addFunction(programName, programFunction) {
+        Terminal.programs[programName] = programFunction;
+    }
+
+    /**
+     * Registers a program (JS function) locally (only for the current terminal's instance).
+     * @param {string} programName The program's name.
+     * @param {function} programFunction The program's JS function to execute when requested.
+     */
+    addFunction(programName, programFunction) {
+        this.programs[programName] = programFunction;
+    }
+
+    /**
+     * Executes a command string.
+     * @param {string} command Command string to execute.
+     */
+    exec(command) {
+        // First step is to parse the command string.
+        this.#bashParse(command, "script");
+    }
+
+    /**
+     * Outputs text in the terminal.
+     * @param {string} string Text to output in the terminal.
+     * @param {boolean} appendPrefix Sets the user and host output text prefix.
+     */
+    write(string, appendPrefix = false) {
+        
+        const bashEntryEl = document.createElement("div");
+        bashEntryEl.classList.add("terminal-entry");
+        
+        if (appendPrefix) {
+            const prefixEl = document.createElement("span");
+            prefixEl.classList.add("terminal-prefix");
+            prefixEl.innerText = this.prefix + " ";
+            bashEntryEl.appendChild(prefixEl);
+        }
+        
+        const commandEl = document.createElement("span");
+        commandEl.classList.add("terminal-command");
+        commandEl.innerText = string;
+        bashEntryEl.appendChild(commandEl);
+
+        this.container.querySelector(".terminal-entries").appendChild(bashEntryEl)
+    }
+
+    /**
+     * Clears all outputs in the terminal.
+     */
+    clear() {
+        this.container.querySelector(".terminal-entries").innerHTML = "";
+    }
+
+    /**
+     * Parses a command string.
+     * - splits the string
+     * - interprets the command name
+     * - interprets the command arguments
+     * @param {string} command Command string to parse.
+     * @param {string} context Execution's context:
+     * - input: the command was executed from the user's input.
+     * - script: the command was executed from a script.
+     */
+    #bashParse(command, context) {
+
+        command = command.trim();
+
+        if (this.echo) {
+            this.write(command, context === "input");
+        }
+
+        // If the command is an empty string, there's no need to interpret it.
+        if (command === "") {
+            return;
+        }
 
         let words,
             program,
@@ -123,43 +208,34 @@ class Terminal {
         // console.log(args);
         // console.log(argsObject);
 
-        this.#bashLookupAndExec(program, args);
+        this.#bashLookupAndExec(program, args, context);
     }
 
-    #bashLookupAndExec(program, args) {
+    /**
+     * Looks up for the program to execute, then executes it.
+     * @param {string} program Program's name to execute.
+     * @param {array} args Command's arguments.
+     * @param {string} context Execution's context:
+     * - input: the command was executed from the user's input.
+     * - script: the command was executed from a script.
+     */
+    #bashLookupAndExec(program, args, context) {
+
+        // Looks up the program is global programs.
         if (program in Terminal.programs) {
             Terminal.programs[program](this, args);
-        }
-        if (program in this.programs) {
+        } // Looks up the program is local programs.
+        else if (program in this.programs) {
             this.programs[program](this, args);
+        } else {
+            this.write(`-bash: ${program}: command not found`);
         }
-    }
 
-    static addFunction() {
-        Terminal.programs[programName] = programFunction;
-    }
-
-    addFunction(programName, programFunction) {
-        this.programs[programName] = programFunction;
-    }
-
-    write(string, appendPrefix = false) {
-        
-        const bashEntryEl = document.createElement("div");
-        bashEntryEl.classList.add("terminal-entry");
-        
-        if (appendPrefix) {
-            const prefixEl = document.createElement("span");
-            prefixEl.classList.add("terminal-prefix");
-            prefixEl.innerText = this.prefix + " ";
-            bashEntryEl.appendChild(prefixEl);
+        // For the "input" context only (the "script" context cannot reset the `echo` variable).
+        if (context === "input") {
+            // Once a program is done executing, its @echo variable is reset
+            // to true since commands needs to be outputted in the terminal.
+            this.echo = true;
         }
-        
-        const commandEl = document.createElement("span");
-        commandEl.classList.add("terminal-command");
-        commandEl.innerText = string;
-        bashEntryEl.appendChild(commandEl);
-
-        this.container.querySelector(".terminal-entries").appendChild(bashEntryEl)
     }
 }
