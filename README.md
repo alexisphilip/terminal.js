@@ -2,9 +2,74 @@
 
 JS integration of an HTML & CSS terminal with built-in functions.
 
-## How to use
+## Usage
+
+Instantiate the terminal.
 
 ```javascript
 const container = document.querySelector("#myTerminal");
-new Terminal();
+const myTerminal = new Terminal();
 ```
+
+### Basic methods
+
+```javascript
+// Writes in the terminal.
+myTerminal.write("Hello world!");
+
+// Executes a bash command.
+myTerminal.exec("myCommand -f arg");
+
+// Clears the terminal.
+myTerminal.clear();
+```
+
+### Add a script (JS function)
+
+> `Terminal` methods can be used through the `terminal` parameter.
+
+**Local** script (for the current terminal instance).
+
+```javascript
+myTerminal.addFunction("ping", (terminal) => {
+    terminal.write("pong");
+});
+```
+
+**Global** script (for all terminals).
+
+```javascript
+Terminal.addFunction("ping", (terminal) => {
+    terminal.write("pong");
+});
+```
+
+### Script arguments
+
+You can get script arguments as an `Array`, just like in BASH.
+
+```bash
+myScript -p val1 -m val2 val3
+```
+
+```javascript
+Terminal.addFunction("myScript", (terminal, args) => {
+    // args = [null, "-p", "val1", "-m", "val2", "val3"]
+});
+```
+
+You can get script arguments as an `Object`.
+
+```bash
+myScript -p val1 -m val2 val3
+```
+
+```javascript
+Terminal.addFunction("myScript", (terminal, args, argsObject) => {
+    // argsObject = [{"-p": "val1"}, {"-m": "val2"}]
+});
+```
+
+### Custom style
+
+TODO

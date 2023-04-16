@@ -151,7 +151,7 @@ class Terminal {
             program,
             regex,
             args = [null],
-            argsObject = [];
+            argsObject = {};
 
         /**
          * Splits the command string by spaces except when it's surrounded by single/double quotes.
@@ -179,17 +179,19 @@ class Terminal {
             }
 
             /**
-             * If the current word is a argument's key (ex: `-p` or `--page`).
+             * If the current word is an argument's key (ex: `-p` or `--page`).
              * Regex: contains 1 or 2 `-` at the start of the string and is not followed by `-`.
              */
             regex = /^-{1,2}(?!-)/;
             if (regex.test(word)) {
+                
                 argsObject[word] = null;
                 args.push(word);
-                // Checks if the next word is a argument's key.
+                
+                // Checks if the next word is also an argument's key.
                 if (regex.test(nextWord)) {
-                    // If it is, we'll exit the loop.
-                    break;
+                    // If it is, we'll skip to the next loop iteration.
+                    continue;
                 } // If it's not a argument's key.
                 else {
                     // Sets that word as the argument's value.
@@ -208,25 +210,26 @@ class Terminal {
         // console.log(args);
         // console.log(argsObject);
 
-        this.#bashLookupAndExec(program, args, context);
+        this.#bashLookupAndExec(program, args, argsObject, context);
     }
 
     /**
      * Looks up for the program to execute, then executes it.
      * @param {string} program Program's name to execute.
      * @param {array} args Command's arguments.
+     * @param {object} argsObject Command's arguments as an object.
      * @param {string} context Execution's context:
      * - input: the command was executed from the user's input.
      * - script: the command was executed from a script.
      */
-    #bashLookupAndExec(program, args, context) {
+    #bashLookupAndExec(program, args, argsObject, context) {
 
         // Looks up the program is global programs.
         if (program in Terminal.programs) {
-            Terminal.programs[program](this, args);
+            Terminal.programs[program](this, args, argsObject);
         } // Looks up the program is local programs.
         else if (program in this.programs) {
-            this.programs[program](this, args);
+            this.programs[program](this, args, argsObject);
         } else {
             this.write(`-bash: ${program}: command not found`);
         }

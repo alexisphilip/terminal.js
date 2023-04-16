@@ -22,27 +22,30 @@ const myTerminal = new Terminal(container);
 /**
  * Writes in the terminal.
  */
-myTerminal.addFunction("ping", (terminal, args) => {
+myTerminal.addFunction("ping", (terminal) => {
     terminal.write("pong");
 });
 
 /**
  * Executes commands in the terminal, without echoing the commands.
  */
-myTerminal.addFunction("test", (terminal, args) => {
+myTerminal.addFunction("test", (terminal, args, argsObject) => {
     terminal.echo = false;
-    terminal.exec("ping");
-    terminal.write("Done!");
+    console.log(args);
+    console.log(argsObject);
 });
 
-/**
- * Arguments management.
- */
-myTerminal.addFunction("copy", (terminal, args) => {
-    console.log(args);
-    if (args[1] == "-f" && !!args[2] && args[3] == "-m" && !!args[4]) {
-        terminal.write(`File is: ${args[2]} and module is: ${args[4]}`);
-    } else {
-        terminal.write(`copy: usage: -f filename -m modulename`);
-    }
-});
+myTerminal.exec("test -y -u -n no");
+// myTerminal.exec("test -y yes -n no");
+
+// /**
+//  * Arguments management.
+//  */
+// myTerminal.addFunction("copy", (terminal, args) => {
+//     console.log(args);
+//     if (args[1] == "-f" && !!args[2] && args[3] == "-m" && !!args[4]) {
+//         terminal.write(`File is: ${args[2]} and module is: ${args[4]}`);
+//     } else {
+//         terminal.write(`copy: usage: -f filename -m modulename`);
+//     }
+// });
