@@ -2,11 +2,14 @@
  * Terminal.js example.
  */
 
+// TODO: help default method, lists all functions
+// TODO: array/table function
 // TODO: set clear method to default?
 // TODO: refactor code (make it more clear, ordered, less repetitive)
 // TODO: when parsing "words string", remove single & double quotes
 // TODO: change objects passed to functions
 // TODO: docs: overwrite default programs
+// TODO: TAB lists objects
 
 /**
  * Clear program.
