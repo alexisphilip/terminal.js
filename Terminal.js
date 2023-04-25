@@ -50,15 +50,6 @@ class Terminal {
                 }
             }
         });
-
-        setTimeout(() => {
-            // this.#bashParse(`myProgram -key1 "yes 'yes' yes \"yes\"" -m arg2 --key2 oui non -key3 'yes "yes" yes \'yes\''`);
-            // this.#bashParse(`copy -f oui -m non`);
-        }, 50);
-
-        // for (let i = 0; i < 100; i++) {
-        //     this.write("hi");
-        // }
     }
 
     static setTemplate() {
@@ -99,7 +90,7 @@ class Terminal {
      */
     write(string, appendPrefix = false) {
         
-        const bashEntryEl = document.createElement("div");
+        const bashEntryEl = document.createElement("pre");
         bashEntryEl.classList.add("terminal-entry");
         
         if (appendPrefix) {
@@ -115,6 +106,95 @@ class Terminal {
         bashEntryEl.appendChild(commandEl);
 
         this.container.querySelector(".terminal-entries").appendChild(bashEntryEl)
+    }
+
+    /**
+     * Outputs 
+     * @param {object[]|array[]} items Array of arrays of array of objects. 
+     */
+    writeTable(items) {
+
+        // Array/object formatting \\
+    
+        let headerVals = [],
+            bodyVals = [];
+    
+        if (items[0].constructor.name === "Array") {
+            bodyVals = items;
+        } else if (items[0].constructor.name === "Object") {
+            headerVals = Object.keys(items[0]),
+            bodyVals = items.map(row => Object.values(row));
+        } else {
+            return "";
+        }
+    
+        // Value formatting \\
+        
+        bodyVals = bodyVals.map(row => Object.values(row).map(col => {
+            if (typeof col !== "string") {
+                return JSON.stringify(col);
+            }
+            return col;
+        }));
+    
+        // Calculates the max length of each columns (to later calculate col spacing) \\
+    
+        let maxColLengths = [];
+    
+        // Merges all header and body values together, to get the max length of each column values.
+        const allValues = [headerVals, ...bodyVals];
+        
+        // For each entries.
+        for (const row of allValues) {
+            // For each columns (values in the row).
+            for (let i = 0; i < row.length; i++) {
+                // If current row is longer than any row values, or if max space.
+                if (row[i].length > maxColLengths[i] || !maxColLengths[i]) maxColLengths[i] = row[i].length;
+            }
+        }
+    
+        // Creates a "separator" string used to split header to value rows, as well as top line and bottom line \\
+    
+        let separatorString = `+`;
+        
+        for (const maxColSpace of maxColLengths) {
+            separatorString += `-${"-".repeat(maxColSpace)}-+`;
+        }
+    
+        // Creates the output string \\
+       
+        let output = "";
+    
+        // Table top line.
+        output += separatorString + "\n";
+    
+        // Table header values.
+        for (let i = 0; i < headerVals.length; i++) {
+            const el = headerVals[i];
+            if (i === 0) output += `|`;
+            output += ` ${el}${` `.repeat(maxColLengths[i] - el.length)} |`;
+        }
+    
+        // If there are header values, appends a table header/body separator line.
+        if (headerVals.length) output += "\n" + separatorString + "\n";
+        
+        // Table body values.
+        for (let i = 0; i < bodyVals.length; i++) {
+    
+            // For each columns in the current row.
+            for (let y = 0; y < bodyVals[i].length; y++) {
+                const el = bodyVals[i][y];
+                if (y === 0) output += `|`;
+                output += ` ${el}${` `.repeat(maxColLengths[y] - el.length)} |`;
+            }
+    
+            output += `\n`;
+        }
+        
+        // Table bottom line.
+        output += separatorString;
+    
+        this.write(output);
     }
 
     /**
