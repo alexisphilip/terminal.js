@@ -11,6 +11,7 @@
 // TODO: change objects passed to functions
 // TODO: docs: overwrite default programs
 // TODO: TAB lists objects
+// TODO: program: wait for user input, exit program with Ctrl+C
 
 const container = document.querySelector("#myTerminal");
 
@@ -40,11 +41,11 @@ myTerminal.addFunction("tables", (terminal, args, argsObject) => {
         ["Standbridge", 150, true],
         ["Foret", 150, false],
     ];
-    myTerminal.writeTable(array);
+    terminal.writeTable(array);
     const object = [
         {name: "Philip", value: 150, bool: true},
         {name: "Standbridge", value: 150, bool: true},
         {name: "Foret", value: 150, bool: false},
     ];
-    myTerminal.writeTable(object);
+    terminal.writeTable(object);
 });

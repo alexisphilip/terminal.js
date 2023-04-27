@@ -10,6 +10,7 @@ class Terminal {
     inputEl;
     container;
 
+    directoryElements = [];
     prefix = "user@host:~#";
     echo = true;
 
@@ -24,10 +25,14 @@ class Terminal {
         let commands = [],
             commandPosition = -1;
 
+        let tabCount = 0;
+
         this.inputEl.addEventListener("keydown", (e) => {
+            const el = e.currentTarget;
+            let val = el.value;
             if (e.key === "Enter") {
-                const command = e.currentTarget.value.trim();
-                e.currentTarget.value = "";
+                const command = val.trim();
+                el.value = "";
                 if (command !== "") {
                     commands.unshift(command);
                 }
@@ -37,17 +42,38 @@ class Terminal {
             } else if (e.key === "ArrowUp") {
                 if (commands[commandPosition + 1]) {
                     commandPosition++;
-                    e.currentTarget.value = ""; // Allows the cursor to be set at the end of the input' value.
-                    e.currentTarget.value = commands[commandPosition];
+                    el.value = ""; // Allows the cursor to be set at the end of the input' value.
+                    el.value = commands[commandPosition];
                 }
             } else if (e.key === "ArrowDown") {
                 if (commands[commandPosition - 1]) {
                     commandPosition--;
-                    e.currentTarget.value = ""; // Allows the cursor to be set at the end of the input' value.
-                    e.currentTarget.value = commands[commandPosition];
+                    el.value = ""; // Allows the cursor to be set at the end of the input' value.
+                    el.value = commands[commandPosition];
                 } else {
-                    e.currentTarget.value = "";
+                    el.value = "";
                 }
+            } else if (e.key === "Tab") {
+                e.preventDefault();
+                tabCount++;
+                if (tabCount !== 2) {
+                    return;
+                }
+                tabCount = 0;
+                if (this.directoryElements.constructor.name !== "Object") {
+                    this.directoryElements = [];
+                }
+                const programs = [...Object.keys(Terminal.programs), ...Object.keys(this.programs), ...this.directoryElements].sort();
+                // Gets all programs which start
+                const matches = programs.filter(program => program.startsWith(val));
+                // Outputs suggestions only if there are more than 1,
+                // OR if there is only one, if the current value is not an exact suggestion name. 
+                if (matches.length > 1 || (matches.length === 1 && matches[0] !== val)) {
+                    this.write(val, true);
+                    this.write(matches.join("    "));
+                }
+            } else {
+                tabCount = 0;
             }
         });
     }
@@ -230,7 +256,7 @@ class Terminal {
         let words,
             program,
             regex,
-            args = [null],
+            args = [],
             argsObject = {};
 
         /**
