@@ -10,7 +10,6 @@
 // TODO: when parsing "words string", remove single & double quotes
 // TODO: change objects passed to functions
 // TODO: docs: overwrite default programs
-// TODO: TAB lists objects
 // TODO: program: wait for user input, exit program with Ctrl+C
 
 const container = document.querySelector("#myTerminal");
