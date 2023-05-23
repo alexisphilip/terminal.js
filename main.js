@@ -2,6 +2,8 @@
  * Terminal.js example.
  */
 
+// TODO: Build HTML template in JS + CSS
+// TODO: add a `data` attribute in which custom programs can use to store custom attributes, data, etc...
 // TODO: global parameters: template, prefix
 // TODO: help default method, lists all functions
 // TODO: array/table function

@@ -18,8 +18,8 @@ const myTerminal = new Terminal();
 myTerminal.write("Hello world!");
 
 // Writes a table in the terminal.
-myTerminal.writeTable([["val1", "val2"], ["val3", "val4"]]); // Array in array (table without header)
-myTerminal.writeTable([{col1: "val1", col2: "val2"}, {col1: "val3", col2: "val4"}]); // Object in array (table with header)
+myTerminal.writeTable([["val1", "val2"], ["val3", "val4"]]); // Array of arrays (table without header)
+myTerminal.writeTable([{col1: "val1", col2: "val2"}, {col1: "val3", col2: "val4"}]); // Array in objects (table with header)
 
 // Executes a bash command.
 myTerminal.exec("myCommand -arg1 val1");
@@ -29,8 +29,6 @@ myTerminal.clear();
 ```
 
 ### Add a script (JS function)
-
-> `Terminal` methods can be used through the `terminal` parameter.
 
 **Local** script (for the current terminal instance).
 
@@ -48,21 +46,11 @@ Terminal.addFunction("ping", (terminal) => {
 });
 ```
 
+> `Terminal` methods can be used through the `terminal` parameter.
+
 ### Script arguments
 
-You can get script arguments as an `Array`, just like in BASH.
-
-```bash
-myScript -p val1 -m val2 val3
-```
-
-```javascript
-Terminal.addFunction("myScript", (terminal, args) => {
-    // args = ["-p", "val1", "-m", "val2", "val3"]
-});
-```
-
-You can get script arguments as an `Object`.
+You can get script arguments as an `Array` or an `Object`.
 
 ```bash
 myScript -p val1 -m val2 val3
@@ -70,6 +58,7 @@ myScript -p val1 -m val2 val3
 
 ```javascript
 Terminal.addFunction("myScript", (terminal, args, argsObject) => {
+    // args =       ["-p", "val1", "-m", "val2", "val3"]
     // argsObject = {"-p": "val1", "-m": "val2"}
 });
 ```

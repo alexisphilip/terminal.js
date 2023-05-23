@@ -14,7 +14,14 @@ class Terminal {
     prefix = "user@host:~#";
     echo = true;
 
+    /**
+     * Sets up global attributes and adds the "keydown" listener.
+     * @param {HTMLElement} container Element which will contain the terminal element.
+     */
     constructor(container) {
+
+        // Setting up main attributes \\
+
         this.container = container;
         this.container.querySelector(".terminal-prefix").innerHTML = this.prefix;
         this.inputEl = this.container.querySelector(".terminal-input");
@@ -27,9 +34,16 @@ class Terminal {
 
         let tabCount = 0;
 
+        /**
+         * On terminal <input> KEYDOWN:
+         * - If ArrowUp/ArrowDown: goes back/forward in bash history.
+         * - If Enter: executes the command and adds it to bash history.
+         */
         this.inputEl.addEventListener("keydown", (e) => {
             const el = e.currentTarget;
             let val = el.value;
+
+            // If key is "Enter", adds the command to bash history and executes it.
             if (e.key === "Enter") {
                 const command = val.trim();
                 el.value = "";
@@ -39,13 +53,15 @@ class Terminal {
                 commandPosition = -1;
                 // Executes the command.
                 this.#bashParse(command, "input");
-            } else if (e.key === "ArrowUp") {
+            } // If key is "ArrowUp", goes back in bash history and outputs the previous command.
+            else if (e.key === "ArrowUp") {
                 if (commands[commandPosition + 1]) {
                     commandPosition++;
                     el.value = ""; // Allows the cursor to be set at the end of the input' value.
                     el.value = commands[commandPosition];
                 }
-            } else if (e.key === "ArrowDown") {
+            } // If key is "ArrowDown", goes forward in bash history and outputs the previous command.
+            else if (e.key === "ArrowDown") {
                 if (commands[commandPosition - 1]) {
                     commandPosition--;
                     el.value = ""; // Allows the cursor to be set at the end of the input' value.
@@ -53,7 +69,8 @@ class Terminal {
                 } else {
                     el.value = "";
                 }
-            } else if (e.key === "Tab") {
+            } // If key is "Tab", lists the available local and global commands.
+            else if (e.key === "Tab") {
                 e.preventDefault();
                 tabCount++;
                 if (tabCount !== 2) {
@@ -110,7 +127,9 @@ class Terminal {
     }
 
     /**
-     * Outputs text in the terminal.
+     * Outputs text in the terminal:
+     * - builds an HTML element which contains the prefix & output.
+     * - appends the element in the list of bash outputs.
      * @param {string} string Text to output in the terminal.
      * @param {boolean} appendPrefix Sets the user and host output text prefix.
      */
@@ -119,6 +138,9 @@ class Terminal {
         const bashEntryEl = document.createElement("pre");
         bashEntryEl.classList.add("terminal-entry");
         
+        // The prefix needs to be appended in some cases:
+        // - if the user hit "Enter": outputs the prefix + user input (+ command output).
+        // - if the user hit "Tab": outputs the prefix + user input (+ command output).
         if (appendPrefix) {
             const prefixEl = document.createElement("span");
             prefixEl.classList.add("terminal-prefix");
@@ -135,7 +157,7 @@ class Terminal {
     }
 
     /**
-     * Outputs 
+     * Outputs a monospace table from a given array..
      * @param {object[]|array[]} items Array of arrays of array of objects. 
      */
     writeTable(items) {
