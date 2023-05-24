@@ -2,28 +2,42 @@
  * Terminal.js example.
  */
 
-// TODO: Build HTML template in JS + CSS
+// TODO: dynamically add CSS
 // TODO: add a `data` attribute in which custom programs can use to store custom attributes, data, etc...
-// TODO: global parameters: template, prefix
+// TODO: `writeHTML` method, or use already existing `write` method?
+// TODO: global methods: template, prefix
 // TODO: help default method, lists all functions
-// TODO: array/table function
 // TODO: set clear command to default?
-// TODO: refactor code (make it more clear, ordered, less repetitive)
 // TODO: when parsing "words string", remove single & double quotes
 // TODO: change objects passed to functions
-// TODO: docs: overwrite default programs
+// TODO: docs: how to overwrite default programs
 // TODO: program: wait for user input, exit program with Ctrl+C
 
 const container = document.querySelector("#myTerminal");
 
 const myTerminal = new Terminal(container);
 
+// ################
+// DEFAULT PROGRAMS
+// ################
+
 /**
- * Clear program.
+ * Clears the terminal from all inputs/outputs.
  */
 Terminal.addFunction("clear", (terminal) => {
     terminal.clear();
 });
+
+/**
+ * 
+ */
+// Terminal.addFunction("", (terminal) => {
+//     terminal.
+// });
+
+// ###############
+// CUSTOM PROGRAMS
+// ###############
 
 /**
  * Writes in the terminal.

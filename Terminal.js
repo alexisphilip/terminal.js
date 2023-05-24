@@ -8,10 +8,10 @@ class Terminal {
 
     // Elements
     inputEl;
-    container;
+    el;
 
     directoryElements = [];
-    prefix = "user@host:~#";
+    prefix = "";
     echo = true;
 
     /**
@@ -20,12 +20,41 @@ class Terminal {
      */
     constructor(container) {
 
-        // Setting up main attributes \\
+        // Creates the HTML terminal \\
 
-        this.container = container;
-        this.container.querySelector(".terminal-prefix").innerHTML = this.prefix;
-        this.inputEl = this.container.querySelector(".terminal-input");
-        this.container.addEventListener("click", (e) => {
+        this.el = container;
+
+        const terminalEl = document.createElement("div");
+        terminalEl.classList.add("terminal");
+
+            const terminalInputWrapperEl = document.createElement("div");
+            terminalInputWrapperEl.classList.add("terminal-input-wrapper");
+            
+                const terminalPrefixEl = document.createElement("span");
+                terminalPrefixEl.classList.add("terminal-prefix");
+            
+                const terminalInputEl = document.createElement("input");
+                terminalInputEl.type = "text";
+                terminalInputEl.classList.add("terminal-input");
+            
+            terminalInputWrapperEl.append(terminalPrefixEl);
+            terminalInputWrapperEl.append(terminalInputEl);
+
+            const terminalEntriesEl = document.createElement("div");
+            terminalEntriesEl.classList.add("terminal-entries");
+        
+        terminalEl.append(terminalInputWrapperEl);
+        terminalEl.append(terminalEntriesEl);
+        this.el.append(terminalEl);
+
+        this.setPrefix("user@host:~#");
+        this.el.querySelector(".terminal-prefix").innerHTML = this.prefix;
+        
+        // Setting up prefix & mandatory listeners \\
+        
+        this.inputEl = this.el.querySelector(".terminal-input");
+
+        this.el.addEventListener("click", (e) => {
             this.inputEl.focus();
         });
 
@@ -99,6 +128,18 @@ class Terminal {
         
     }
 
+    setTemplate() {
+        
+    }
+
+    /**
+     * Sets the terminal's input prefix.
+     * @param {string} prefix 
+     */
+    setPrefix(prefix) {
+        this.prefix = `${prefix}&nbsp;`;
+    }
+
     /**
      * Registers a program (JS function) globally (for all terminal's instances).
      * @param {string} programName The program's name.
@@ -114,7 +155,7 @@ class Terminal {
      * @param {function} programFunction The program's JS function to execute when requested.
      */
     addFunction(programName, programFunction) {
-        this.programs[programName] = programFunction;
+        Terminal.addFunction(programName, programFunction);
     }
 
     /**
@@ -144,7 +185,7 @@ class Terminal {
         if (appendPrefix) {
             const prefixEl = document.createElement("span");
             prefixEl.classList.add("terminal-prefix");
-            prefixEl.innerText = this.prefix + " ";
+            prefixEl.innerHTML = this.prefix;
             bashEntryEl.appendChild(prefixEl);
         }
         
@@ -153,7 +194,7 @@ class Terminal {
         commandEl.innerText = string;
         bashEntryEl.appendChild(commandEl);
 
-        this.container.querySelector(".terminal-entries").appendChild(bashEntryEl)
+        this.el.querySelector(".terminal-entries").appendChild(bashEntryEl)
     }
 
     /**
@@ -249,7 +290,7 @@ class Terminal {
      * Clears all outputs in the terminal.
      */
     clear() {
-        this.container.querySelector(".terminal-entries").innerHTML = "";
+        this.el.querySelector(".terminal-entries").innerHTML = "";
     }
 
     /**
