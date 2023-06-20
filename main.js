@@ -31,6 +31,20 @@ Terminal.addFunction("clear", (terminal) => {
 /**
  * 
  */
+Terminal.addFunction("ls", (terminal) => {
+    // terminal.clear();
+});
+
+/**
+ * 
+ */
+Terminal.addFunction("cd", (terminal) => {
+    // terminal.clear();
+});
+
+/**
+ * 
+ */
 // Terminal.addFunction("", (terminal) => {
 //     terminal.
 // });

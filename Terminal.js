@@ -13,7 +13,7 @@ class Terminal {
     directoryElements = [];
     prefix = "";
     echo = true;
-
+    
     /**
      * Sets up global attributes and adds the "keydown" listener.
      * @param {HTMLElement} container Element which will contain the terminal element.
@@ -130,6 +130,14 @@ class Terminal {
 
     setTemplate() {
         
+    }
+
+    static setTheme() {
+
+    }
+
+    setTheme() {
+
     }
 
     /**
