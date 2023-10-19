@@ -14,6 +14,9 @@ const myTerminal = new Terminal();
 ### Basic methods
 
 ```javascript
+// Executes a bash command.
+myTerminal.exec("myCommand -arg1 val1");
+
 // Writes in the terminal.
 myTerminal.write("Hello world!");
 
@@ -21,11 +24,14 @@ myTerminal.write("Hello world!");
 myTerminal.writeTable([["val1", "val2"], ["val3", "val4"]]); // Array of arrays (table without header)
 myTerminal.writeTable([{col1: "val1", col2: "val2"}, {col1: "val3", col2: "val4"}]); // Array in objects (table with header)
 
-// Executes a bash command.
-myTerminal.exec("myCommand -arg1 val1");
-
 // Clears the terminal.
 myTerminal.clear();
+
+// Changes the terminal's name.
+myTerminal.setName("myTerminal");
+
+// Changes the prompt.
+myTerminal.setPrompt("name@example: ");
 ```
 
 ### Add a script (JS function)

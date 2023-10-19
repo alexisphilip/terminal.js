@@ -1,5 +1,13 @@
 /**
- * Terminal
+ * Appends an HTML terminal in the given element.
+ * 
+ * You can:
+ * - Create custom "programs" (JS functions)
+ * - Execute commands with parameters (execute these JS functions through the terminal)
+ * - Append text/HTML in the terminal
+ * - Change the prompt, the terminal's name...
+ * 
+ * @see {@link readme.md} documentation
  */
 class Terminal {
 
@@ -13,27 +21,34 @@ class Terminal {
      */
     #el;
     /**
+     * Terminal's name.
+     * @var {string}
+     */
+    #name = "terminal";
+    /**
      * Default prompt.
      * @var {string}
      */
     #prompt = "user@host: ";
-
+    /**
+     * If the 
+     */
     #isGenerated = true;
-    /**
-     * List of global programs, common to all terminals.
-     * @var {function{}}
-     */
-    static #globalPrograms = {};
-    /**
-     * List of local programs, for the current terminal instance.
-     * @var {function{}}
-     */
-    #programs = {};
 
     // #################
     // PUBLIC PROPERTIES
     // #################
 
+    /**
+     * List of global programs, common to all terminals.
+     * @var {function{}}
+     */
+    static globalPrograms = {};
+    /**
+     * List of local programs, for the current terminal instance.
+     * @var {function{}}
+     */
+    programs = {};
     /**
      * Outputs the bash input into the terminal.
      * It's useful to set it to `false` in a bash script
@@ -141,7 +156,7 @@ class Terminal {
                 if (this.directoryElements.constructor.name !== "Object") {
                     this.directoryElements = [];
                 }
-                const programs = [...Object.keys(Terminal.#globalPrograms), ...Object.keys(this.#programs), ...this.directoryElements].sort();
+                const programs = [...Object.keys(Terminal.globalPrograms), ...Object.keys(this.programs), ...this.directoryElements].sort();
                 // Gets all programs which start
                 const matches = programs.filter(program => program.startsWith(val));
                 // Outputs suggestions only if there are more than 1,
@@ -156,6 +171,14 @@ class Terminal {
         });
 
         this.isGenerated = true;
+    }
+
+    /**
+     * Sets the terminal's name.
+     * @param {string} name
+     */
+    setName(name) {
+        this.#name = name;
     }
 
     /**
@@ -176,7 +199,7 @@ class Terminal {
      * @param {function} programFunction The program's JS function to execute when requested.
      */
     static addProgram(programName, programFunction) {
-        Terminal.#globalPrograms[programName] = programFunction;
+        Terminal.globalPrograms[programName] = programFunction;
     }
 
     /**
@@ -185,7 +208,7 @@ class Terminal {
      * @param {function} programFunction The program's JS function to execute when requested.
      */
     addProgram(programName, programFunction) {
-        Terminal.addProgram(programName, programFunction);
+        this.programs[programName] = programFunction;
     }
 
     /**
@@ -201,10 +224,10 @@ class Terminal {
      * Outputs text in the terminal:
      * - builds an HTML element which contains the prompt & output.
      * - appends the element in the list of bash outputs.
-     * @param {string} string Text to output in the terminal.
+     * @param {string} content Text/HTML to output in the terminal.
      * @param {boolean} appendPrompt Outputs the prompt before the content.
      */
-    write(string, appendPrompt = false) {
+    write(content, appendPrompt = false) {
 
         const bashEntryEl = document.createElement("pre");
         bashEntryEl.classList.add("terminal-entry");
@@ -220,8 +243,8 @@ class Terminal {
         }
         
         const commandEl = document.createElement("span");
-        commandEl.classList.add("terminal-command");
-        commandEl.innerText = string;
+        commandEl.classList.add("terminal-content");
+        commandEl.innerHTML = content;
         bashEntryEl.appendChild(commandEl);
 
         this.#el.querySelector(".terminal-entries").appendChild(bashEntryEl)
@@ -425,13 +448,13 @@ class Terminal {
     #bashLookupAndExec(program, args, argsObject, context) {
 
         // Looks up the program in global programs.
-        if (program in Terminal.#globalPrograms) {
-            Terminal.#globalPrograms[program](this, args, argsObject);
+        if (program in Terminal.globalPrograms) {
+            Terminal.globalPrograms[program](this, args, argsObject);
         } // Looks up the program in local programs.
-        else if (program in this.#programs) {
-            this.#programs[program](this, args, argsObject);
+        else if (program in this.programs) {
+            this.programs[program](this, args, argsObject);
         } else {
-            this.write(`-terminal: ${program}: command not found`);
+            this.write(`${this.#name}: ${program}: command not found`);
         }
 
         // For the "input" context only (the "script" context cannot reset the `echo` variable).
