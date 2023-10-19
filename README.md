@@ -33,17 +33,21 @@ myTerminal.clear();
 **Local** script (for the current terminal instance).
 
 ```javascript
-myTerminal.addFunction("ping", (terminal) => {
+myTerminal.addProgram("ping", (terminal) => {
     terminal.write("pong");
 });
+
+myTerminal.exec("ping"); // Output: "pong"
 ```
 
 **Global** script (for all terminals).
 
 ```javascript
-Terminal.addFunction("ping", (terminal) => {
+Terminal.addProgram("ping", (terminal) => {
     terminal.write("pong");
 });
+
+myTerminal.exec("ping"); // Output: "pong"
 ```
 
 > `Terminal` methods can be used through the `terminal` parameter.
@@ -52,17 +56,11 @@ Terminal.addFunction("ping", (terminal) => {
 
 You can get script arguments as an `Array` or an `Object`.
 
-```bash
-myScript -p val1 -m val2 val3
-```
-
 ```javascript
-Terminal.addFunction("myScript", (terminal, args, argsObject) => {
+Terminal.addProgram("myScript", (terminal, args, argsObject) => {
     // args =       ["-p", "val1", "-m", "val2", "val3"]
     // argsObject = {"-p": "val1", "-m": "val2"}
 });
+
+myTerminal.exec("myScript -p val1 -m val2 val3");
 ```
-
-### Custom style
-
-TODO

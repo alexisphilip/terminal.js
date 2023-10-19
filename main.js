@@ -2,52 +2,27 @@
  * Terminal.js example.
  */
 
-// TODO: dynamically add CSS
-// TODO: add a `data` attribute in which custom programs can use to store custom attributes, data, etc...
+// TODO: CSS: add it automatically in constructor
+// TODO: CSS: overwrite it
+// TODO: set terminal name? so errors output are: -[NAME]: command not found
+// TODO: add a `data` attribute which custom programs can use to store custom attributes, data, etc...
 // TODO: `writeHTML` method, or use already existing `write` method?
-// TODO: global methods: template, prefix
+// TODO: global methods: add these: setTemplate, setTheme, setPrompt? (instance + static)
 // TODO: help default method, lists all functions
-// TODO: set clear command to default?
+// TODO: default programs: clear, ls, cd
+// TODO: default programs: allow overwrite? (clear, ls, cd)
 // TODO: when parsing "words string", remove single & double quotes
 // TODO: change objects passed to functions
-// TODO: docs: how to overwrite default programs
 // TODO: program: wait for user input, exit program with Ctrl+C
 
+// Selects the terminal's parent, where it will be appended.
 const container = document.querySelector("#myTerminal");
 
+// Instantiates the terminal.
 const myTerminal = new Terminal(container);
 
-// ################
-// DEFAULT PROGRAMS
-// ################
-
-/**
- * Clears the terminal from all inputs/outputs.
- */
-Terminal.addFunction("clear", (terminal) => {
-    terminal.clear();
-});
-
-/**
- * 
- */
-Terminal.addFunction("ls", (terminal) => {
-    // terminal.clear();
-});
-
-/**
- * 
- */
-Terminal.addFunction("cd", (terminal) => {
-    // terminal.clear();
-});
-
-/**
- * 
- */
-// Terminal.addFunction("", (terminal) => {
-//     terminal.
-// });
+// Customizes the prompt.
+myTerminal.setPrompt("alexis@philip: ");
 
 // ###############
 // CUSTOM PROGRAMS
@@ -56,15 +31,14 @@ Terminal.addFunction("cd", (terminal) => {
 /**
  * Writes in the terminal.
  */
-myTerminal.addFunction("ping", (terminal) => {
+myTerminal.addProgram("ping", (terminal) => {
     terminal.write("pong");
 });
 
 /**
  * Executes commands in the terminal, without echoing the commands.
  */
-myTerminal.addFunction("tables", (terminal, args, argsObject) => {
-    // terminal.echo = false;
+myTerminal.addProgram("tables", (terminal, args, argsObject) => {
     const array = [
         ["Philip", 150, true],
         ["Standbridge", 150, true],

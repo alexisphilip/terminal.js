@@ -2,17 +2,48 @@
  * Terminal
  */
 class Terminal {
-    // static terminals;
-    static programs = {};
-    programs = {};
 
-    // Elements
-    inputEl;
-    el;
+    // ##################
+    // PRIVATE PROPERTIES
+    // ##################
 
-    directoryElements = [];
-    prefix = "";
+    /**
+     * The terminal's HTML element.
+     * @var {HTMLElement}
+     */
+    #el;
+    /**
+     * Default prompt.
+     * @var {string}
+     */
+    #prompt = "user@host: ";
+
+    #isGenerated = true;
+    /**
+     * List of global programs, common to all terminals.
+     * @var {function{}}
+     */
+    static #globalPrograms = {};
+    /**
+     * List of local programs, for the current terminal instance.
+     * @var {function{}}
+     */
+    #programs = {};
+
+    // #################
+    // PUBLIC PROPERTIES
+    // #################
+
+    /**
+     * Outputs the bash input into the terminal.
+     * It's useful to set it to `false` in a bash script
+     * @var {boolean}
+     */
     echo = true;
+    /**
+     * TODO: WIP (ls program)
+     */
+    directoryElements = [];
     
     /**
      * Sets up global attributes and adds the "keydown" listener.
@@ -22,7 +53,7 @@ class Terminal {
 
         // Creates the HTML terminal \\
 
-        this.el = container;
+        this.#el = container;
 
         const terminalEl = document.createElement("div");
         terminalEl.classList.add("terminal");
@@ -30,14 +61,14 @@ class Terminal {
             const terminalInputWrapperEl = document.createElement("div");
             terminalInputWrapperEl.classList.add("terminal-input-wrapper");
             
-                const terminalPrefixEl = document.createElement("span");
-                terminalPrefixEl.classList.add("terminal-prefix");
+                const terminalPromptEl = document.createElement("span");
+                terminalPromptEl.classList.add("terminal-prompt");
             
                 const terminalInputEl = document.createElement("input");
                 terminalInputEl.type = "text";
                 terminalInputEl.classList.add("terminal-input");
             
-            terminalInputWrapperEl.append(terminalPrefixEl);
+            terminalInputWrapperEl.append(terminalPromptEl);
             terminalInputWrapperEl.append(terminalInputEl);
 
             const terminalEntriesEl = document.createElement("div");
@@ -45,17 +76,16 @@ class Terminal {
         
         terminalEl.append(terminalInputWrapperEl);
         terminalEl.append(terminalEntriesEl);
-        this.el.append(terminalEl);
+        this.#el.append(terminalEl);
 
-        this.setPrefix("user@host:~#");
-        this.el.querySelector(".terminal-prefix").innerHTML = this.prefix;
+        this.#el.querySelector(".terminal-prompt").innerHTML = this.#prompt;
         
-        // Setting up prefix & mandatory listeners \\
+        // Setting up prompt & mandatory listeners \\
         
-        this.inputEl = this.el.querySelector(".terminal-input");
+        const inputEl = this.#el.querySelector(".terminal-input");
 
-        this.el.addEventListener("click", (e) => {
-            this.inputEl.focus();
+        this.#el.addEventListener("click", () => {
+            inputEl.focus();
         });
 
         let commands = [],
@@ -67,8 +97,9 @@ class Terminal {
          * On terminal <input> KEYDOWN:
          * - If ArrowUp/ArrowDown: goes back/forward in bash history.
          * - If Enter: executes the command and adds it to bash history.
+         * - If Tab: lists the available local and global commands.
          */
-        this.inputEl.addEventListener("keydown", (e) => {
+        inputEl.addEventListener("keydown", (e) => {
             const el = e.currentTarget;
             let val = el.value;
 
@@ -106,10 +137,11 @@ class Terminal {
                     return;
                 }
                 tabCount = 0;
+                // TODO: WIP (ls program)
                 if (this.directoryElements.constructor.name !== "Object") {
                     this.directoryElements = [];
                 }
-                const programs = [...Object.keys(Terminal.programs), ...Object.keys(this.programs), ...this.directoryElements].sort();
+                const programs = [...Object.keys(Terminal.#globalPrograms), ...Object.keys(this.#programs), ...this.directoryElements].sort();
                 // Gets all programs which start
                 const matches = programs.filter(program => program.startsWith(val));
                 // Outputs suggestions only if there are more than 1,
@@ -122,30 +154,20 @@ class Terminal {
                 tabCount = 0;
             }
         });
-    }
 
-    static setTemplate() {
-        
-    }
-
-    setTemplate() {
-        
-    }
-
-    static setTheme() {
-
-    }
-
-    setTheme() {
-
+        this.isGenerated = true;
     }
 
     /**
-     * Sets the terminal's input prefix.
-     * @param {string} prefix 
+     * Sets the terminal's prompt.
+     * @param {string} prompt 
      */
-    setPrefix(prefix) {
-        this.prefix = `${prefix}&nbsp;`;
+    setPrompt(prompt) {
+        this.#prompt = prompt;
+        // Replaces white spaces by non breakable spaces.
+        this.#prompt = this.#prompt.replace(" ", "&nbsp;");
+        // Updates the main prompt element if it already has been generated.
+        if (this.#isGenerated) this.#el.querySelector(".terminal-input-wrapper .terminal-prompt").innerHTML = this.#prompt;
     }
 
     /**
@@ -153,8 +175,8 @@ class Terminal {
      * @param {string} programName The program's name.
      * @param {function} programFunction The program's JS function to execute when requested.
      */
-    static addFunction(programName, programFunction) {
-        Terminal.programs[programName] = programFunction;
+    static addProgram(programName, programFunction) {
+        Terminal.#globalPrograms[programName] = programFunction;
     }
 
     /**
@@ -162,8 +184,8 @@ class Terminal {
      * @param {string} programName The program's name.
      * @param {function} programFunction The program's JS function to execute when requested.
      */
-    addFunction(programName, programFunction) {
-        Terminal.addFunction(programName, programFunction);
+    addProgram(programName, programFunction) {
+        Terminal.addProgram(programName, programFunction);
     }
 
     /**
@@ -177,24 +199,24 @@ class Terminal {
 
     /**
      * Outputs text in the terminal:
-     * - builds an HTML element which contains the prefix & output.
+     * - builds an HTML element which contains the prompt & output.
      * - appends the element in the list of bash outputs.
      * @param {string} string Text to output in the terminal.
-     * @param {boolean} appendPrefix Sets the user and host output text prefix.
+     * @param {boolean} appendPrompt Outputs the prompt before the content.
      */
-    write(string, appendPrefix = false) {
-        
+    write(string, appendPrompt = false) {
+
         const bashEntryEl = document.createElement("pre");
         bashEntryEl.classList.add("terminal-entry");
         
-        // The prefix needs to be appended in some cases:
-        // - if the user hit "Enter": outputs the prefix + user input (+ command output).
-        // - if the user hit "Tab": outputs the prefix + user input (+ command output).
-        if (appendPrefix) {
-            const prefixEl = document.createElement("span");
-            prefixEl.classList.add("terminal-prefix");
-            prefixEl.innerHTML = this.prefix;
-            bashEntryEl.appendChild(prefixEl);
+        // The prompt needs to be appended in some cases:
+        // - if the user hit "Enter": outputs the prompt + user input (+ command output).
+        // - if the user hit "Tab": outputs the prompt + user input (+ command output).
+        if (appendPrompt) {
+            const promptEl = document.createElement("span");
+            promptEl.classList.add("terminal-prompt");
+            promptEl.innerHTML = this.#prompt;
+            bashEntryEl.appendChild(promptEl);
         }
         
         const commandEl = document.createElement("span");
@@ -202,7 +224,7 @@ class Terminal {
         commandEl.innerText = string;
         bashEntryEl.appendChild(commandEl);
 
-        this.el.querySelector(".terminal-entries").appendChild(bashEntryEl)
+        this.#el.querySelector(".terminal-entries").appendChild(bashEntryEl)
     }
 
     /**
@@ -298,7 +320,7 @@ class Terminal {
      * Clears all outputs in the terminal.
      */
     clear() {
-        this.el.querySelector(".terminal-entries").innerHTML = "";
+        this.#el.querySelector(".terminal-entries").innerHTML = "";
     }
 
     /**
@@ -315,6 +337,7 @@ class Terminal {
 
         command = command.trim();
 
+        // If @echo is set to `true`, outputs the command.
         if (this.echo) {
             this.write(command, context === "input");
         }
@@ -401,14 +424,14 @@ class Terminal {
      */
     #bashLookupAndExec(program, args, argsObject, context) {
 
-        // Looks up the program is global programs.
-        if (program in Terminal.programs) {
-            Terminal.programs[program](this, args, argsObject);
-        } // Looks up the program is local programs.
-        else if (program in this.programs) {
-            this.programs[program](this, args, argsObject);
+        // Looks up the program in global programs.
+        if (program in Terminal.#globalPrograms) {
+            Terminal.#globalPrograms[program](this, args, argsObject);
+        } // Looks up the program in local programs.
+        else if (program in this.#programs) {
+            this.#programs[program](this, args, argsObject);
         } else {
-            this.write(`-bash: ${program}: command not found`);
+            this.write(`-terminal: ${program}: command not found`);
         }
 
         // For the "input" context only (the "script" context cannot reset the `echo` variable).
