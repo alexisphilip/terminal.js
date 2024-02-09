@@ -8,7 +8,7 @@ Instantiate the terminal.
 
 ```javascript
 const container = document.querySelector("#myTerminal");
-const myTerminal = new Terminal();
+const myTerminal = new Terminal(container);
 ```
 
 ### Basic methods
