@@ -134,6 +134,7 @@ class Terminal {
                     commandPosition++;
                     el.value = ""; // Allows the cursor to be set at the end of the input' value.
                     el.value = commands[commandPosition];
+                    this.#moveCursorToEndOfInput(el);
                 }
             } // If key is "ArrowDown", goes forward in bash history and outputs the previous command.
             else if (e.key === "ArrowDown") {
@@ -141,6 +142,7 @@ class Terminal {
                     commandPosition--;
                     el.value = ""; // Allows the cursor to be set at the end of the input' value.
                     el.value = commands[commandPosition];
+                    this.#moveCursorToEndOfInput(el);
                 } else {
                     el.value = "";
                 }
@@ -463,5 +465,16 @@ class Terminal {
             // to true since commands needs to be outputted in the terminal.
             this.echo = true;
         }
+    }
+
+    /**
+     * Focuses the cursor on the given input and moves the users cursor at the end.
+     * @param {HTMLInputElement} inputEl Input element to focus and move its cursor at the end.
+     */
+    #moveCursorToEndOfInput(inputEl) {
+        setTimeout(() => {
+            inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
+            inputEl.focus();
+        }, 0)
     }
 }
